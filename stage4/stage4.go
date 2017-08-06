@@ -69,7 +69,7 @@ func matches(a []rune, b []rune) int {
 	return count
 }
 
-func superimpose(input string) {
+func superimpose(input string) int {
 	s := []rune(input)
 	res := make(map[int]int, len(s)-1)
 	maxd := 0
@@ -105,10 +105,21 @@ func superimpose(input string) {
 		fmt.Printf("Matches: %d, Displacements: %+v\n", k, rmap[k])
 	}
 
+	displacement := len(input)
+	for _, v := range rmap[keys[len(keys)-1]] {
+		if v <= displacement {
+			displacement = v
+		}
+	}
+
+	return displacement + 1
+
 }
 
 func main() {
 	raw, _ := ioutil.ReadFile("cipher.text")
 	cipher := strings.Trim(string(raw), "\n")
-	superimpose(cipher)
+	fmt.Println("Applying superimposition")
+	keylength := superimpose(cipher)
+	fmt.Printf("Tempative keylength found: %d\n", keylength)
 }
