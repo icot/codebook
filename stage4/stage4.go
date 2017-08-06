@@ -72,21 +72,37 @@ func matches(a []rune, b []rune) int {
 func superimpose(input string) {
 	s := []rune(input)
 	res := make(map[int]int, len(s)-1)
+	maxd := 0
 	for i := 1; i < len(s); i++ {
 		displaced := make([]rune, len(s))
 		pos := copy(displaced, s[i:])
 		copy(displaced[pos:], s[0:i])
 		m := matches(s, displaced)
 		res[i] = m
+		if m >= maxd {
+			maxd = m
+		}
+	}
+
+	// Reverse map
+	rmap := make(map[int][]int, maxd)
+
+	for k, v := range res {
+		if len(rmap[v]) >= 1 {
+			rmap[v] = append(rmap[v], k)
+		} else {
+			rmap[v] = []int{k}
+		}
 	}
 
 	keys := []int{}
-	for k := range res {
+	for k := range rmap {
 		keys = append(keys, k)
 	}
+
 	sort.Ints(keys)
 	for _, k := range keys {
-		fmt.Printf("Shift: %d, Matches: %d\n", k, res[k])
+		fmt.Printf("Matches: %d, Displacements: %+v\n", k, rmap[k])
 	}
 
 }
