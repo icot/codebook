@@ -17,10 +17,10 @@ func prettyPrint(input interface{}) {
 	fmt.Print(string(b))
 }
 
-func freqTable(input string) {
+func freqTable(input string) *map[string]float32 {
 	table := map[string]float32{}
 	for _, letter := range input {
-		if letter != 0x20 {
+		if letter != 0x20 && letter != 0x0A {
 			_, ok := table[string(letter)]
 			if ok {
 				table[string(letter)]++
@@ -35,6 +35,9 @@ func freqTable(input string) {
 	}
 
 	prettyPrint(table)
+
+	return &table
+
 }
 
 func loadMapping() map[string]string {
@@ -116,9 +119,32 @@ func superimpose(input string) int {
 
 }
 
+func printFreqTables(input []map[string]float32) {
+	ncols := len(input)
+	rows := strings.Split("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "")
+	for _, k := range rows {
+		pref := fmt.Sprintf("%s - ", k)
+		body := ""
+		for n := 0; n < ncols; n++ {
+			body = body + fmt.Sprintf("[%d] %f\t", n, input[n][k])
+		}
+		fmt.Println(pref + body)
+	}
+
+}
+
 func main() {
 	raw, _ := ioutil.ReadFile("cipher.text")
-	cipher := strings.Trim(string(raw), "\n")
+	// https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
+	buf := raw[:0]
+	for _, x := range raw {
+		if x != 0x0a {
+			buf = append(buf, x)
+		}
+	}
+	cipher := string(buf)
+	fmt.Println(raw)
+	fmt.Println(cipher)
 	fmt.Println("Applying superimposition")
 	keylength := superimpose(cipher)
 	fmt.Printf("Tempative keylength found: %d\n", keylength)
@@ -143,8 +169,13 @@ func main() {
 	}
 	fmt.Printf("Total processed characters: %d\n", pos-1)
 	fmt.Println("Sub-ciphers")
+
+	ftables := make([]map[string]float32, keylength)
 	for k, v := range ciphers {
 		fmt.Printf("\nShift: %d, Lenght: %d, Cipher: \n%v\n\n", k, len(v), v)
-		freqTable(string(v))
+		ftables[k] = *(freqTable(string(v)))
 	}
+
+	printFreqTables(ftables)
+
 }
