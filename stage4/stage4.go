@@ -122,4 +122,28 @@ func main() {
 	fmt.Println("Applying superimposition")
 	keylength := superimpose(cipher)
 	fmt.Printf("Tempative keylength found: %d\n", keylength)
+
+	ciphers := make([][]byte, keylength)
+
+	fmt.Printf("Total characters: %d\n", len(cipher))
+
+	pos := 0
+	for i := 0; i <= len(cipher)/keylength; i++ {
+		for shift := 0; shift < keylength; shift++ {
+			if len(ciphers[shift]) > 0 {
+				ciphers[shift] = append(ciphers[shift], cipher[pos])
+			} else {
+				ciphers[shift] = []byte{cipher[pos]}
+			}
+			pos++
+			if pos == len(cipher) {
+				break
+			}
+		}
+	}
+	fmt.Printf("Total processed characters: %d\n", pos-1)
+	fmt.Println("Sub-ciphers")
+	for k, v := range ciphers {
+		fmt.Printf("\nShift: %d, Lenght: %d, Cipher: \n%v\n\n", k, len(v), v)
+	}
 }
