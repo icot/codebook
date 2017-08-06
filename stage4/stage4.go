@@ -125,8 +125,8 @@ func main() {
 
 	ciphers := make([][]byte, keylength)
 
+	// Partition input cipher
 	fmt.Printf("Total characters: %d\n", len(cipher))
-
 	pos := 0
 	for i := 0; i <= len(cipher)/keylength; i++ {
 		for shift := 0; shift < keylength; shift++ {
@@ -145,5 +145,6 @@ func main() {
 	fmt.Println("Sub-ciphers")
 	for k, v := range ciphers {
 		fmt.Printf("\nShift: %d, Lenght: %d, Cipher: \n%v\n\n", k, len(v), v)
+		freqTable(string(v))
 	}
 }
